@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento</title>
+    <style>
+        #bloco-inicial {
+            margin: 10px;
+            border: 2px solid black;
+            display: flex;
+            padding: 10px;
+            overflow: auto;
+        }
+
+        #pix-selecionado {
+            border: 2px solid black;
+            margin: 10px;
+            padding: 10px;
+            overflow: auto;
+        }
+
+        #valor {
+            margin-left: 5px;
+        }
+
+        #confirmar {
+            margin-top: 5px;
+            cursor: pointer;
+        }
+
+        #pagar {
+            margin: 10px;
+            border-radius: 2px;
+        }
+
+        #posicionamento-total {
+            float: right;
+            margin: 10px;
+        }
+
+        #cartaoDeCredito-selecionado {
+            border: 2px solid black;
+            margin: 10px;
+            padding: 10px;
+        }
+
+        #form-credito {
+            border: 2px solid black;
+            padding: 10px;
+            overflow: auto;
+            width: 30%;
+            margin-right: 10px;
+        }
+
+        #calculadora-de-valores {
+            margin-left: 25%;
+            margin-right: 25%;
+
+        }
+
+        #tabela-parcelas {
+            width: 70%;
+            border: 2px solid black;
+            overflow: auto;
+
+        }
+
+        #formulario-e-tabela-parcelas {
+            display: flex;
+        }
+
+        tr,
+        th {
+            background-color: black;
+            color: aliceblue;
+
+        }
+
+        td {
+            background-color: aliceblue;
+            color: black;
+            border: 2px solid black;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1 id="apresentacao" style="text-align: center;">Selecione Pix ou Cartão de crédito para começar</h1>
+    <p style="text-align: center;">Use ',' para casas decimais</p>
+
+    <div id="calculadora-de-valores">
+        <div id="bloco-inicial">
+            <form action="" id="form-inicial" onsubmit="event.preventDefault()">
+                <label for="valor">Valor:</label>
+                <input name="valor" id="value" type="text"><br>
+                <label for="pix">Pix</label>
+                <input type="radio" name="pix" id="pix" unchecked>
+                <label for="cartaoDeCredito">Cartão de crédito</label>
+                <input name="cartaoDeCredito" unchecked id="cartaoDeCredito" type="radio"><br>
+                <input type="submit" name="confirmar" id="confirmar" value="Confirmar">
+                <span id="dados-confirmados"></span>
+            </form>
+        </div>
+
+
+        <div id="pix-selecionado">
+            <form action="" id="form-pix" onsubmit="event.preventDefault()">
+                <h1>PIX</h1>
+                <label for="cpf">CPF:</label>
+                <input type="text" name="cpf" id="cpf">
+            </form>
+        </div>
+
+        <div id="cartaoDeCredito-selecionado">
+            <h1>Cartão de crédito</h1>
+            <div id="formulario-e-tabela-parcelas">
+                <form action="" id="form-credito" onsubmit="event.preventDefault()">
+                    <label class="label-credito" for="numero">Número:</label><br>
+                    <input class="inputs-credito" type="text" id="numero" name="numero">
+                    <input type="submit" value="ok" style="cursor: pointer;">
+                    <img width="15px" height="15px" id="bandeira"><br>
+                    <label for="titular" class="label-credito">Titular:</label><br>
+                    <input type="text" class="inputs-credito" id="titular" name="titular"><br>
+                    <label for="cd-seguranca" class="label-credito">Cd de segurança: </label><br>
+                    <input type="text" class="inputs-credito" id="cd-seguranca" name="cd-seguranca"><br>
+                    <label for="vencimento" class="label-credito">Vencimento: </label><br>
+                    <input type="text" class="inputs-credito" id="vencimento" name="vencimento"><br>
+                    <label for="combobox-parcelas" class="label-credito">Parcelas</label><br>
+                    <select name="combobox-parcelas" id="combobox-parcelas" class="inputs-credito">
+
+                    </select>
+
+                </form>
+                <table id="tabela-parcelas">
+                    <thead>
+                        <tr>
+                            <th>Quant. Parcelas</th>
+                            <th>Preço Parcelas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <b id="posicionamento-total">Total: R$<span id="total-valor">0.00</span></b>
+        <button id="pagar">Pagar</button>
+
+    </div>
+
+    <script src="jquery.js"></script>
+
+    <script>
+        // Of course you might be able to cringe and stutter, but that is not going to undo your actions
+        // Take accountability for your mistakes and give no excuses, and never forget to keep moving forward
+        // Learn from your mistakes in respect to the person you once were, because if no learning came out of your suffering, was it worth it?
+        // Anyway, commit to your sucess.
+
+        $(document).ready(function () {
+            let w = $("input").width();
+            $("#combobox-parcelas").width(w);
+            $("#cartaoDeCredito-selecionado").hide();
+            $("#pix-selecionado").hide();
+            $("#pagar").hide();
+            $("#posicionamento-total").hide();
+            $("#confirmar").hide();
+            $("#bandeira").hide();
+
+            $("#pix").prop("checked", false);
+            $("#cartaoDeCredito").prop("checked", false);
+
+            $("#confirmar").click(function () {
+                let valor = $("#value").val();
+                if ((valor % 2 <= 2 && valor % 2 >= 0)) {
+                    $("#dados-confirmados").text("Valor, ok!");
+                    $("#dados-confirmados").css("color", "green");
+                    $("#total-valor").text((valor -= valor * 10 / 100).toFixed(2));
+                }
+
+                if (valor == "") {
+                    alert("O campo não pode estar vazio.");
+                    console.log("O campo não pode estar vazio.")
+                    $("#dados-confirmados").text("Ops! Operação não aprovada!");
+                    $("#dados-confirmados").css("color", "red");
+                    $("#total-valor").text("0.00");
+                }
+
+                if (!(valor % 2 <= 2 && valor % 2 >= 0)) {
+                    alert("Apenas números, por gentileza.")
+                    console.log("Apenas números, por gentileza.")
+                    $("#dados-confirmados").text("Ops! Operação não aprovada");
+                    $("#dados-confirmados").css("color", "red");
+                    $("#total-valor").text("0.00");
+                }
+                $("#value").val("");
+            })
+
+            $("#pix").click(function () {
+                $("#cartaoDeCredito-selecionado").hide();
+                $("#pix-selecionado").show();
+                $("#apresentacao").hide();
+                $("#cartaoDeCredito").prop("checked", false);
+                $("#confirmar").show();
+                $("#pagar").show();
+                $("#posicionamento-total").show();
+                $("#dados-confirmados").text("");
+            })
+
+            $("#cartaoDeCredito").click(function () {
+                $("#pix-selecionado").hide();
+                $("#cartaoDeCredito-selecionado").show();
+                $("#apresentacao").hide();
+                $("#pix").prop("checked", false);
+                $("#confirmar").show();
+                $("#pagar").show();
+                $("#posicionamento-total").show();
+                $("#dados-confirmados").text("");
+            })
+
+            $("#pagar").click(function () {
+                if ($("#pix").prop("checked", true)) {
+                    if (!($("#cpf").val() == "")) {
+                        alert("Operação aprovada!");
+                        $("#cpf").val("");
+                        $("#pix").prop("checked", true);
+                    } else {
+                        alert("Você deve informar o CPF!");
+                        $("#pix").prop("checked", true);
+                    }
+                }
+                if ($("#cartaoDeCredito").prop("checked", true)) {
+                    alert("Operação aprovada!");
+                    $("#numero").val("");
+                    $("#titular").val("");
+                    $("#cd-seguranca").val("");
+                    $("#vencimento").val("");
+                    $("#cartaoDeCredito").prop("checked", true);
+                } else {
+                    alert("Você deve garantir que todos os campos estejam preenchidos!");
+                    $("#cartaoDeCredito").prop("checked", true);
+                }
+            })
+
+            $("#numero").keyup(function () {
+                let valor = $("#numero").val();
+                if (valor === "1234") {
+                    $("#bandeira").show();
+                    $("#bandeira").attr("src", "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.7d4gFjBNOQfVTZ1fkC4sXQHaHX%3Fpid%3DApi&f=1&ipt=49be6340095dc5b24ae52a835ddde876e96808c3ffebdc64d2c51432f3007bd5&ipo=images")
+                } if (valor === "4321") {
+                    $("#bandeira").show();
+                    $("#bandeira").attr("src", "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.3nkirBdjw-akyp5kXtH3VwAAAA%3Fcb%3Ddefcachec2%26pid%3DApi&f=1&ipt=4f20e32c1cd4e09d3c8a5b246089843821996fc622eae145403c912f8bdf9cb6&ipo=images")
+                } if (valor != "4321" && valor != "1234") {
+                    $("#bandeira").show();
+                    $("#bandeira").attr("src", "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.NJtR4fpshSUUBS0_6cXj_AHaHa%3Fpid%3DApi&f=1&ipt=6846699d65e7dc17db4c493127c5d5af06af4796be161a9c915a66ffd6e1ec78&ipo=images")
+                }
+            })
+        })
+        // It's easy go to back in the past, and get lost into that endless sea of guilt
+        // It requires a ton of effort to get where you want, but just a few moments to give up
+        // But what you may not be realizing, is that... Giving up gives you a life of regrets
+        // And going forward, might not grant, but if there is any chance of getting a life of glory... Why not persuit it?
+    </script>
+</body>
+
+</html>
