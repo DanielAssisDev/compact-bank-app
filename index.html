@@ -89,7 +89,7 @@
 <body>
 
     <h1 id="apresentacao" style="text-align: center;">Selecione Pix ou Cartão de crédito para começar</h1>
-    <p style="text-align: center;">Use ',' para casas decimais</p>
+    <p style="text-align: center;">Use '.' para casas decimais</p>
 
     <div id="calculadora-de-valores">
         <div id="bloco-inicial">
@@ -130,11 +130,11 @@
                     <label for="combobox-parcelas" class="label-credito">Parcelas</label><br>
                     <select name="combobox-parcelas" id="parcelas" class="inputs-credito">
                         <option value="Selecione">Selecione</option>
-                        <option value="x1">x1</option>
-                        <option value="x2">x2</option>
-                        <option value="x3">x3</option>
-                        <option value="x4">x4</option>
-                        <option value="x5">x5</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
                     </select>
 
                 </form>
@@ -145,7 +145,7 @@
                             <th>Preço Parcelas</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="corpo-tabela">
                     </tbody>
                 </table>
             </div>
@@ -177,11 +177,37 @@
 
             $("#pix").prop("checked", false);
             $("#cartaoDeCredito").prop("checked", false);
-
+            $("#parcelas").val("Selecione");
 
             function desconto(val) {
                 return val *= 0.90;
             }
+            let totalValor;
+
+            function pegarValor() {
+                return $("#value").val();
+            }
+
+            function preencherTabela() {
+                let parcelas = $("#parcelas").val();
+
+                let juros;
+                if (parcelas == 4) {
+                    juros = 1.05;
+                }
+                if (parcelas == 5) {
+                    juros = 1.10;
+                } else {
+                    juros = 1;
+                }
+
+                for (let i = 0; i < parcelas; i++) {
+                    $("#corpo-tabela").empty();
+                    $("#corpo-tabela").append("<tr class='table-rows'></tr>");
+                    $(".table-rows").append("<td>" + parcelas + "</td><td>" + encapsulate(((totalValor *= juros) / parcelas)).toFixed(2) + "</td>");
+                }
+            }
+
 
             // Yes, we have a function that returns the parameter, call me and discover why
             // +5527981026479 i dare you
@@ -189,27 +215,26 @@
                 return val * 100 / 100;
             }
 
-            let valorcalculado;
-
             $("#confirmar").click(function () {
-                let valor = $("#value").val();
-
+                let valor = pegarValor();
                 if ((valor % 2 < 2 && valor % 2 >= 0)) {
                     $("#dados-confirmados").text("Valor, ok!");
                     $("#dados-confirmados").css("color", "green");
+
                     if (radioSelecionado === "pix") {
                         $("#pix-selecionado").show();
                         $("#total-valor").text(desconto(valor).toFixed(2));
-                        valorcalculado = desconto(valor).toFixed(2);
+                        totalValor = desconto(valor).toFixed(2);
                         $("#apresentacao").text("Insira o CPF e clique em 'pagar'.");
                     }
                     if (radioSelecionado === "cartao") {
                         $("#cartaoDeCredito-selecionado").show();
                         $("#total-valor").text(encapsulate(valor).toFixed(2));
-                        valorcalculado = encapsulate(valor).toFixed(2);
+                        totalValor = encapsulate(valor).toFixed(2);
                         $("#apresentacao").text("Perfeito, preencha o formulário.");
+                        preencherTabela(totalValor);
+                        console.log(totalValor)
                     }
-                    console.info(valorcalculado);
                     $("#pagar").show();
                     $("#posicionamento-total").show();
                 }
@@ -220,7 +245,10 @@
                     $("#dados-confirmados").text("Ops! Operação não aprovada!");
                     $("#dados-confirmados").css("color", "red");
                     $("#total-valor").text("0.00");
-
+                    $("#pix-selecionado").hide();
+                    $("#cartaoDeCredito-selecionado").hide();
+                    $("#pagar").hide();
+                    $("#posicionamento-total").hide();
                 }
 
                 if (!(valor % 2 < 2 && valor % 2 >= 0)) {
@@ -229,6 +257,10 @@
                     $("#dados-confirmados").text("Ops! Operação não aprovada.");
                     $("#dados-confirmados").css("color", "red");
                     $("#total-valor").text("0.00");
+                    $("#pix-selecionado").hide();
+                    $("#cartaoDeCredito-selecionado").hide();
+                    $("#pagar").hide();
+                    $("#posicionamento-total").hide();
                 }
                 $("#value").val("");
             })
@@ -236,7 +268,7 @@
             $("#pix").click(function () {
                 $("#cartaoDeCredito").prop("checked", false);
                 $("#cartaoDeCredito-selecionado").hide();
-                $("#apresentacao").text("Insira o valor para continuar com as operações de pix.");
+                $("#apresentacao").text("Insira o valor e confirme para continuar com as operações de pix.");
                 $("#confirmar").show();
                 $("#dados-confirmados").text("");
                 $("#total-valor").text("0.00");
@@ -248,7 +280,7 @@
             $("#cartaoDeCredito").click(function () {
                 $("#pix").prop("checked", false);
                 $("#pix-selecionado").hide();
-                $("#apresentacao").text("Insira o valor para continuar com as operações de cartão.");
+                $("#apresentacao").text("Insira o valor e confirme para continuar com as operações de cartão.");
                 $("#confirmar").show();
                 $("#dados-confirmados").text("");
                 $("#total-valor").text("0.00");
@@ -289,19 +321,11 @@
                     } else {
                         alert("Ops! Algo deu errado! Verifique todos os campos e tente outra vez.");
                     }
-
-                    /*
-                    $("#form-credito input").each(function (index) {
-                        if ($(this).val() === "" || $(this).val() === "Selecione") {
-                            console.info("aaaa");
-                            alert("Preencha todos os campos! E selecione uma quantidade de parcelas");
-                        }
-                        if (index.val() === "" || index.val() === "Selecione") {
-                            console.info("ok"); alert("Operação realizada com sucesso.");
-                            location.reload();
-                        }
-                    })*/
                 }
+            })
+
+            $("#parcelas").change(function () {
+                preencherTabela();
             })
         })
         // It's easy go to back in the past, and get lost into that endless sea of guilt
