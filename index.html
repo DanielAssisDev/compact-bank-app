@@ -97,9 +97,9 @@
                 <label for="valor">Valor:</label>
                 <input name="valor" id="value" type="text"><br>
                 <label for="pix">Pix</label>
-                <input type="radio" name="pix" id="pix" unchecked>
+                <input type="radio" name="pix" id="pix">
                 <label for="cartaoDeCredito">Cartão de crédito</label>
-                <input name="cartaoDeCredito" unchecked id="cartaoDeCredito" type="radio"><br>
+                <input name="cartaoDeCredito" id="cartaoDeCredito" type="radio"><br>
                 <input type="submit" name="confirmar" id="confirmar" value="Confirmar">
                 <span id="dados-confirmados"></span>
             </form>
@@ -120,7 +120,6 @@
                 <form action="" id="form-credito" onsubmit="event.preventDefault()">
                     <label class="label-credito" for="numero">Número:</label><br>
                     <input class="inputs-credito" type="text" id="numero" name="numero">
-                    <input type="submit" value="ok" style="cursor: pointer;">
                     <img width="15px" height="15px" id="bandeira"><br>
                     <label for="titular" class="label-credito">Titular:</label><br>
                     <input type="text" class="inputs-credito" id="titular" name="titular"><br>
@@ -129,8 +128,13 @@
                     <label for="vencimento" class="label-credito">Vencimento: </label><br>
                     <input type="text" class="inputs-credito" id="vencimento" name="vencimento"><br>
                     <label for="combobox-parcelas" class="label-credito">Parcelas</label><br>
-                    <select name="combobox-parcelas" id="combobox-parcelas" class="inputs-credito">
-
+                    <select name="combobox-parcelas" id="parcelas" class="inputs-credito">
+                        <option value="Selecione">Selecione</option>
+                        <option value="x1">x1</option>
+                        <option value="x2">x2</option>
+                        <option value="x3">x3</option>
+                        <option value="x4">x4</option>
+                        <option value="x5">x5</option>
                     </select>
 
                 </form>
@@ -161,6 +165,7 @@
         // Anyway, commit to your sucess.
 
         $(document).ready(function () {
+            let radioSelecionado;
             let w = $("input").width();
             $("#combobox-parcelas").width(w);
             $("#cartaoDeCredito-selecionado").hide();
@@ -168,17 +173,45 @@
             $("#pagar").hide();
             $("#posicionamento-total").hide();
             $("#confirmar").hide();
-            $("#bandeira").hide();
+            $("input[type='text']").val("");
 
             $("#pix").prop("checked", false);
             $("#cartaoDeCredito").prop("checked", false);
 
+
+            function desconto(val) {
+                return val *= 0.90;
+            }
+
+            // Yes, we have a function that returns the parameter, call me and discover why
+            // +5527981026479 i dare you
+            function encapsulate(val) {
+                return val * 100 / 100;
+            }
+
+            let valorcalculado;
+
             $("#confirmar").click(function () {
                 let valor = $("#value").val();
-                if ((valor % 2 <= 2 && valor % 2 >= 0)) {
+
+                if ((valor % 2 < 2 && valor % 2 >= 0)) {
                     $("#dados-confirmados").text("Valor, ok!");
                     $("#dados-confirmados").css("color", "green");
-                    $("#total-valor").text((valor -= valor * 10 / 100).toFixed(2));
+                    if (radioSelecionado === "pix") {
+                        $("#pix-selecionado").show();
+                        $("#total-valor").text(desconto(valor).toFixed(2));
+                        valorcalculado = desconto(valor).toFixed(2);
+                        $("#apresentacao").text("Insira o CPF e clique em 'pagar'.");
+                    }
+                    if (radioSelecionado === "cartao") {
+                        $("#cartaoDeCredito-selecionado").show();
+                        $("#total-valor").text(encapsulate(valor).toFixed(2));
+                        valorcalculado = encapsulate(valor).toFixed(2);
+                        $("#apresentacao").text("Perfeito, preencha o formulário.");
+                    }
+                    console.info(valorcalculado);
+                    $("#pagar").show();
+                    $("#posicionamento-total").show();
                 }
 
                 if (valor == "") {
@@ -187,12 +220,13 @@
                     $("#dados-confirmados").text("Ops! Operação não aprovada!");
                     $("#dados-confirmados").css("color", "red");
                     $("#total-valor").text("0.00");
+
                 }
 
-                if (!(valor % 2 <= 2 && valor % 2 >= 0)) {
+                if (!(valor % 2 < 2 && valor % 2 >= 0)) {
                     alert("Apenas números, por gentileza.")
                     console.log("Apenas números, por gentileza.")
-                    $("#dados-confirmados").text("Ops! Operação não aprovada");
+                    $("#dados-confirmados").text("Ops! Operação não aprovada.");
                     $("#dados-confirmados").css("color", "red");
                     $("#total-valor").text("0.00");
                 }
@@ -200,62 +234,73 @@
             })
 
             $("#pix").click(function () {
-                $("#cartaoDeCredito-selecionado").hide();
-                $("#pix-selecionado").show();
-                $("#apresentacao").hide();
                 $("#cartaoDeCredito").prop("checked", false);
+                $("#cartaoDeCredito-selecionado").hide();
+                $("#apresentacao").text("Insira o valor para continuar com as operações de pix.");
                 $("#confirmar").show();
-                $("#pagar").show();
-                $("#posicionamento-total").show();
                 $("#dados-confirmados").text("");
+                $("#total-valor").text("0.00");
+                $("#pagar").hide();
+                $("#posicionamento-total").hide();
+                radioSelecionado = "pix";
             })
 
             $("#cartaoDeCredito").click(function () {
-                $("#pix-selecionado").hide();
-                $("#cartaoDeCredito-selecionado").show();
-                $("#apresentacao").hide();
                 $("#pix").prop("checked", false);
+                $("#pix-selecionado").hide();
+                $("#apresentacao").text("Insira o valor para continuar com as operações de cartão.");
                 $("#confirmar").show();
-                $("#pagar").show();
-                $("#posicionamento-total").show();
                 $("#dados-confirmados").text("");
-            })
-
-            $("#pagar").click(function () {
-                if ($("#pix").prop("checked", true)) {
-                    if (!($("#cpf").val() == "")) {
-                        alert("Operação aprovada!");
-                        $("#cpf").val("");
-                        $("#pix").prop("checked", true);
-                    } else {
-                        alert("Você deve informar o CPF!");
-                        $("#pix").prop("checked", true);
-                    }
-                }
-                if ($("#cartaoDeCredito").prop("checked", true)) {
-                    alert("Operação aprovada!");
-                    $("#numero").val("");
-                    $("#titular").val("");
-                    $("#cd-seguranca").val("");
-                    $("#vencimento").val("");
-                    $("#cartaoDeCredito").prop("checked", true);
-                } else {
-                    alert("Você deve garantir que todos os campos estejam preenchidos!");
-                    $("#cartaoDeCredito").prop("checked", true);
-                }
+                $("#total-valor").text("0.00");
+                $("#bandeira").hide();
+                $("#pagar").hide();
+                $("#posicionamento-total").hide();
+                radioSelecionado = "cartao";
             })
 
             $("#numero").keyup(function () {
                 let valor = $("#numero").val();
-                if (valor === "1234") {
+                if (String(valor).startsWith("1234")) {
                     $("#bandeira").show();
                     $("#bandeira").attr("src", "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.7d4gFjBNOQfVTZ1fkC4sXQHaHX%3Fpid%3DApi&f=1&ipt=49be6340095dc5b24ae52a835ddde876e96808c3ffebdc64d2c51432f3007bd5&ipo=images")
-                } if (valor === "4321") {
+                } if (String(valor).startsWith("4321")) {
                     $("#bandeira").show();
                     $("#bandeira").attr("src", "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.3nkirBdjw-akyp5kXtH3VwAAAA%3Fcb%3Ddefcachec2%26pid%3DApi&f=1&ipt=4f20e32c1cd4e09d3c8a5b246089843821996fc622eae145403c912f8bdf9cb6&ipo=images")
-                } if (valor != "4321" && valor != "1234") {
+                } if (!String(valor).startsWith("4321") && !String(valor).startsWith("1234")) {
                     $("#bandeira").show();
                     $("#bandeira").attr("src", "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.NJtR4fpshSUUBS0_6cXj_AHaHa%3Fpid%3DApi&f=1&ipt=6846699d65e7dc17db4c493127c5d5af06af4796be161a9c915a66ffd6e1ec78&ipo=images")
+                }
+            })
+
+            $("#pagar").click(function () {
+                if (radioSelecionado === "pix") {
+                    if ($("#cpf").val() != "") {
+                        alert("Operação realizada com sucesso.");
+                        location.reload();
+                    }
+                    if ($("#cpf").val() === "") {
+                        alert("Preencha o campo conforme solicitado.");
+                    }
+                }
+                if (radioSelecionado === "cartao") {
+                    if (!($("#numero").val() === "" || $("#titular").val() === "" || $("#cd-seguranca").val() === "" || $("#vencimento").val() === "" || $("#parcelas").val() === "Selecione")) {
+                        alert("Operação realizada com sucesso.");
+                        location.reload();
+                    } else {
+                        alert("Ops! Algo deu errado! Verifique todos os campos e tente outra vez.");
+                    }
+
+                    /*
+                    $("#form-credito input").each(function (index) {
+                        if ($(this).val() === "" || $(this).val() === "Selecione") {
+                            console.info("aaaa");
+                            alert("Preencha todos os campos! E selecione uma quantidade de parcelas");
+                        }
+                        if (index.val() === "" || index.val() === "Selecione") {
+                            console.info("ok"); alert("Operação realizada com sucesso.");
+                            location.reload();
+                        }
+                    })*/
                 }
             })
         })
