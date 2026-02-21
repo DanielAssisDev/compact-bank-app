@@ -190,21 +190,18 @@
 
             function preencherTabela() {
                 let parcelas = $("#parcelas").val();
-
-                let juros;
+                let juros = 1;
                 if (parcelas == 4) {
                     juros = 1.05;
                 }
                 if (parcelas == 5) {
                     juros = 1.10;
-                } else {
-                    juros = 1;
                 }
-
+                console.log(totalValor);
                 for (let i = 0; i < parcelas; i++) {
                     $("#corpo-tabela").empty();
                     $("#corpo-tabela").append("<tr class='table-rows'></tr>");
-                    $(".table-rows").append("<td>" + parcelas + "</td><td>" + encapsulate(((totalValor *= juros) / parcelas)).toFixed(2) + "</td>");
+                    $(".table-rows").append("<td>" + parcelas + "</td><td>" + encapsulate((totalValor * juros / parcelas)).toFixed(2) + "</td>");
                 }
             }
 
