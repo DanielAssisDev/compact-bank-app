@@ -246,6 +246,7 @@
                     $("#cartaoDeCredito-selecionado").hide();
                     $("#pagar").hide();
                     $("#posicionamento-total").hide();
+                    $("#apresentacao").text("Insira valores válidos, e siga com a operação.");
                 }
 
                 if (!(valor % 2 < 2 && valor % 2 >= 0)) {
@@ -258,6 +259,7 @@
                     $("#cartaoDeCredito-selecionado").hide();
                     $("#pagar").hide();
                     $("#posicionamento-total").hide();
+                    $("#apresentacao").text("Insira valores válidos, e siga com a operação.");
                 }
                 $("#value").val("");
             })
